@@ -30,6 +30,8 @@ stream.on('tweet', function (tweet) {
   }
 })
 
-setTimeout(function() {
-  client.land();
-},1000*60)
+client.getVideoStream()
+
+// setTimeout(function() {
+//   client.land();
+// },1000*60)
