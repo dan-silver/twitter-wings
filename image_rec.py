@@ -3,7 +3,6 @@ import cv2
 from matplotlib import pyplot as plt
 import sys
 
-#config to d
 saveComparisonImage = True
 showDialog = False
 
