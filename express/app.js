@@ -43,5 +43,5 @@ app.get('/test-drone', function(req, res) {
  * call 'listen' on the server, not the express app
  */
 // should be require("dronestream").listen(server);
-require("../index").listen(server);
+// require("../index").listen(server);
 server.listen(3000);
