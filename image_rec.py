@@ -3,7 +3,7 @@ import cv2
 from matplotlib import pyplot as plt
 import sys
 
-draw = False
+draw = True
 
 img1 = cv2.imread('../test_images/box.png',0)          # queryImage
 img2 = cv2.imread('../test_images/box_scene.png',0) # trainImage
@@ -55,11 +55,12 @@ if draw:
 	for x,y in confirmedMatches:
 		cv2.circle(img3, (int(x),int(y)), 20, (40,40,40))
 	img3 = cv2.drawMatchesKnn(img1,kp1,img2,kp2,matches,None,**draw_params)
-
+	cv2.imwrite('public/comparison.png', img3)
 # plt.imshow(img3,),plt.show()
 
 # cv2.imshow('image',img3)
 # cv2.waitKey(0)
 # cv2.destroyAllWindows()
+
 
 print len(confirmedMatches)
