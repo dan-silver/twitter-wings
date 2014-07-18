@@ -9,6 +9,6 @@
   "scripts": {
     "start": "node app"
   },
-  "author": "Bernhard K. Weisshuhn <bkw@codingforce.com>",
+  "author": "An awesome team of Cerner interns",
   "license": "BSD"
 }
