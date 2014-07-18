@@ -3,7 +3,9 @@ import cv2
 from matplotlib import pyplot as plt
 import sys
 
-draw = True
+#config to d
+saveComparisonImage = True
+showDialog = False
 
 img1 = cv2.imread('../test_images/box.png',0)          # queryImage
 img2 = cv2.imread('../test_images/box_scene.png',0) # trainImage
@@ -43,24 +45,23 @@ for i,(m,n) in enumerate(confirmedMatches):
 	confirmedMatches[i] = kp2[confirmedMatches[i][0].trainIdx].pt
 
 # print confirmedMatches
-if draw:
+if saveComparisonImage or showDialog:
 	draw_params = dict(matchColor = (0,255,0),
                    singlePointColor = (255,0,0),
                    matchesMask = matchesMask,
                    flags = 0)
-	# print "there were {} confirmed matches".format(len(confirmedMatches))
-
 
 	img3 = cv2.imread('scene-tri.png',cv2.IMREAD_COLOR)
 	for x,y in confirmedMatches:
 		cv2.circle(img3, (int(x),int(y)), 20, (40,40,40))
 	img3 = cv2.drawMatchesKnn(img1,kp1,img2,kp2,matches,None,**draw_params)
-	cv2.imwrite('public/comparison.png', img3)
-# plt.imshow(img3,),plt.show()
+	if saveComparisonImage:
+		cv2.imwrite('public/comparison.png', img3)
 
-# cv2.imshow('image',img3)
-# cv2.waitKey(0)
-# cv2.destroyAllWindows()
-
+if showDialog:
+	plt.imshow(img3,),plt.show()
+	cv2.imshow('image',img3)
+	cv2.waitKey(0)
+	cv2.destroyAllWindows()
 
 print len(confirmedMatches)
