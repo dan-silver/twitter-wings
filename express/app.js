@@ -1,21 +1,16 @@
 var express = require('express')
   , routes = require('./routes')
   , app = express()
-
   , path = require('path')
   , server = require("http").createServer(app)
-  ;
-var fs = require("fs");
-var bodyParser = require('body-parser');
-
-  var arDrone = require('ar-drone');
-var client  = arDrone.createClient();
-
-var asyncblock = require('asyncblock');
-var exec = require('child_process').exec;
+  , fs = require("fs")
+  , bodyParser = require('body-parser')
+  , arDrone = require('ar-drone')
+  , client  = arDrone.createClient()
+  , asyncblock = require('asyncblock')
+  , exec = require('child_process').exec;
 
 app.use(bodyParser({limit: '900mb'}));
-
 
 app.configure(function () {
     app.set('views', __dirname + '/views');
@@ -33,46 +28,22 @@ app.configure('development', function () {
 });
 
 app.get('/', routes.index);
-
-app.get('/test', function(req, res){
-  // The form's action is '/' and its method is 'POST',
-  // so the `app.post('/', ...` route will receive the
-  // result of our form
-  var html = '<form action="/image" method="post">' +
-               'Enter your name:' +
-               '<input type="text" name="userName" placeholder="..." />' +
-               '<br>' +
-               '<button type="submit">Submit</button>' +
-            '</form>';
-               
-  res.send(html);
-});
-
+function log(s) {
+  console.log("node>" + s)
+}
 app.post('/image', function(req, res, next) {
-  console.log('image posted!')
-  // console.log(req)
-  console.log(req.params)
-  console.log(req.body.picture)
-  console.log(req.picture)
-  console.log(req.query)
-  // console.log(req.query.picture)
-
-     var result = {
-        "type":"",
-        "data":""
-    }
-
+  log('image posted!')
+    var result = {}
     var matches = req.body.picture.match(/^data:image\/([A-Za-z-+\/]+);base64,(.+)$/),response = {};
     result.type = matches[1];
     result.data = new Buffer(matches[2], 'base64');
-
+    if (!result.data) {res.end()}
     require('fs').writeFile('../test_images/box_scene.'+result.type, result.data, "binary", function(err){
-        // res.status(500).send("error");
       if (err) throw err;
       asyncblock(function (flow) {
           exec('python ../image_rec.py', flow.add());
-          result = flow.wait();
-          console.log("node> There were " + parseInt(result) + " matches.")
+          result = parseInt(flow.wait());
+          log("There were " + result + " matches.")
       });
     });
   res.end()
