@@ -75,10 +75,6 @@ app.post('/image', function(req, res, next) {
           console.log("node> There were " + parseInt(result) + " matches.")
       });
     });
-
-
-  // fs.writeFile("out.png", decodeBase64Image(req.body.picture), 'base64', function(err) {
-  // });
   res.end()
 })
 
@@ -91,28 +87,35 @@ app.get('/test-drone', function(req, res) {
 
   res.end()
 })
+//var Twit = require('twit')
+//config = require('./config')
+//
+//var T = new Twit({
+//    consumer_key:         config.consumer_key
+//  , consumer_secret:      config.consumer_key
+//  , access_token:         config.access_token
+//  , access_token_secret:  config.access_token_secret
+//})
+//
+//var stream = T.stream('statuses/filter', { track: 'cernercopter' })
+//
+//stream.on('tweet', function (tweet) {
+//  if (tweet.text.search("#up") != -1) {
+//    console.log("going up!")
+//    client.takeoff();
+//  } else if (tweet.text.search("#down") != -1) {
+//    console.log("going down!")
+//    client.land();
+//  } else if (tweet.text.search("#blink") != -1) {
+//    console.log("blink!")
+//    client.animateLeds('blinkRed', 5, 2)
+//  } else if (tweet.text.search("#left") != -1) {
+//    console.log("left")
+//    client.counterClockwise(0.5)
+//  }
+//})
 
-function decodeBase64Image(dataString) {
-  var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/),
-    response = {};
 
-  if (matches.length !== 3) {
-    return new Error('Invalid input string');
-  }
-
-  response.type = matches[1];
-  response.data = new Buffer(matches[2], 'base64');
-
-  return response;
-}
-
-
-/*
- * Important:
- *
- * pass in the server object to listen, not the express app
- * call 'listen' on the server, not the express app
- */
 // should be require("dronestream").listen(server);
 require("../index").listen(server);
 server.listen(3000);

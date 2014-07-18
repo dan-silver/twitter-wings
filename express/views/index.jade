@@ -16,6 +16,7 @@ block append head
 
 
 block append bodyscripts
+<<<<<<< HEAD
   script.
     var copterStream = new NodecopterStream(document.querySelector('#dronestream'));
   script.
@@ -28,6 +29,21 @@ block append bodyscripts
       $.post("http://localhost:3000/image",{status:true,picture:pic},function(result){
       });
     }, 8000)
+=======
+  table(width="100%")
+    tr
+      td(width="50%")
+        h1 Video Stream goes here!
+        script.
+          var copterStream = new NodecopterStream(document.querySelector('#dronestream'));
+      td(width="50%") 
+        h1 Twitter goes here!
+        a.twitter-timeline(href="https://twitter.com/hashtag/cernercopter", data-widget-id="489955639867617280") #cernercopter Tweets
+        script
+          !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");
+        
+         
+>>>>>>> 8a87c23b864b14dba320148fb1ea948ca94fef0c
 
 block content
   h1 The live stream!
