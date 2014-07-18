@@ -1,6 +1,7 @@
 extends layout
 
 block append head
+  script(type='text/javascript', src='http://code.jquery.com/jquery-1.11.0.min.js')
   script(type='text/javascript', src='/dronestream/nodecopter-client.js')
 
 -# for developing the client, use those url:s
@@ -17,6 +18,16 @@ block append head
 block append bodyscripts
   script.
     var copterStream = new NodecopterStream(document.querySelector('#dronestream'));
+  script.
+    $.ajaxSetup({
+      async: true
+    });
+    setInterval(function() {
+      console.log('sending image to server')
+      var pic = $('#dronestream canvas')[0].toDataURL("image/png");
+      $.post("http://localhost:3000/image",{status:true,picture:pic},function(result){
+      });
+    }, 8000)
 
 block content
   h1 The live stream!
