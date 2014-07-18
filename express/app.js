@@ -8,7 +8,17 @@ var express = require('express')
   , arDrone = require('ar-drone')
   , client  = arDrone.createClient()
   , asyncblock = require('asyncblock')
-  , exec = require('child_process').exec;
+  , exec = require('child_process').exec
+  , io = require('socket.io')(server)
+  , Twit = require('twit')
+  , config = require('../config')
+
+var T = new Twit({
+   consumer_key:         config.consumer_key
+ , consumer_secret:      config.consumer_secret
+ , access_token:         config.access_token
+ , access_token_secret:  config.access_token_secret
+})
 
 app.use(bodyParser({limit: '900mb'}));
 
@@ -58,35 +68,30 @@ app.get('/test-drone', function(req, res) {
 
   res.end()
 })
-//var Twit = require('twit')
-//config = require('./config')
-//
-//var T = new Twit({
-//    consumer_key:         config.consumer_key
-//  , consumer_secret:      config.consumer_key
-//  , access_token:         config.access_token
-//  , access_token_secret:  config.access_token_secret
-//})
-//
-//var stream = T.stream('statuses/filter', { track: 'cernercopter' })
-//
-//stream.on('tweet', function (tweet) {
-//  if (tweet.text.search("#up") != -1) {
-//    console.log("going up!")
-//    client.takeoff();
-//  } else if (tweet.text.search("#down") != -1) {
-//    console.log("going down!")
-//    client.land();
-//  } else if (tweet.text.search("#blink") != -1) {
-//    console.log("blink!")
-//    client.animateLeds('blinkRed', 5, 2)
-//  } else if (tweet.text.search("#left") != -1) {
-//    console.log("left")
-//    client.counterClockwise(0.5)
-//  }
-//})
 
+var stream = T.stream('statuses/filter', { track: 'obama' })
 
+io.on('connection', function (socket) {
+  socket.emit('news', { hello: 'world' });
+
+  stream.on('tweet', function (tweet, error) {
+    console.log(tweet.text)
+    socket.emit("tweet", tweet)
+    if (tweet.text.search("#up") != -1) {
+      console.log("going up!")
+      client.takeoff();
+    } else if (tweet.text.search("#down") != -1) {
+      console.log("going down!")
+      client.land();
+    } else if (tweet.text.search("#blink") != -1) {
+      console.log("blink!")
+      client.animateLeds('blinkRed', 5, 2)
+    } else if (tweet.text.search("#left") != -1) {
+      console.log("left")
+      client.counterClockwise(0.5)
+    }
+  })
+});
 // should be require("dronestream").listen(server);
 require("../index").listen(server);
 server.listen(3000);

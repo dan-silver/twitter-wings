@@ -3,6 +3,9 @@ extends layout
 block append head
   script(type='text/javascript', src='http://code.jquery.com/jquery-1.11.0.min.js')
   script(type='text/javascript', src='/dronestream/nodecopter-client.js')
+  script(type='text/javascript', src='/socket.io/socket.io.js')
+  script(type='text/javascript', src='/js/angular/angular.js')
+  script(type='text/javascript', src='/js/tweets.js')
 
 -# for developing the client, use those url:s
 -# script(type='text/javascript', src='/dronestream/vendor/broadway/sylvester.js')
@@ -25,19 +28,23 @@ block append bodyscripts
     })
   script.
     $.ajaxSetup({ async: true });
-    setInterval(function() {
-      var pic = $('#dronestream canvas')[0].toDataURL("image/png");
-      $.post("http://localhost:3000/image",{status:true,picture:pic},function(result){});
-    }, 3500)
+    //- setInterval(function() {
+    //-   var pic = $('#dronestream canvas')[0].toDataURL("image/png");
+    //-   $.post("http://localhost:3000/image",{status:true,picture:pic},function(result){});
+    //- }, 3500)
   script.
     !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");
 
   table(width="100%")
     tr
-      td
+      td(width="50%")
         h1 Video Stream goes here!
         div#dronestream(width=640, height=360)
         img#compare(src="comparison.png")
-      // td 
+      td(width="50%")
+        div
+          ul
+            li(ng-repeat='tweet in tweets')
+              {{tweet.text}}
       //  h1 Twitter goes here!
       //  a.twitter-timeline(href="https://twitter.com/hashtag/cernercopter", data-widget-id="489955639867617280") #cernercopter Tweets
