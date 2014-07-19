@@ -5,7 +5,7 @@ phonecatApp.controller('AppCtrl', function ($scope) {
 
   var socket = io.connect('http://localhost');
   socket.on('tweet', function (data) {
-    $scope.tweets.push(data)
+    //$scope.tweets.push(data)
     console.log(data);
     $scope.$apply()
     //  write back to server

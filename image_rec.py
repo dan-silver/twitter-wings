@@ -6,7 +6,7 @@ import sys
 saveComparisonImage = True
 showDialog = False
 
-img1 = cv2.imread('../test_images/box.png',0)          # queryImage
+img1 = cv2.imread('../test_images/fox.jpg',0)          # queryImage
 img2 = cv2.imread('../test_images/box_scene.png',0) # trainImage
 
 # Initiate SIFT detector

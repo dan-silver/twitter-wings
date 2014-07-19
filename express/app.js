@@ -8,7 +8,8 @@ var express = require('express')
   , arDrone = require('ar-drone')
   , client  = arDrone.createClient()
   , asyncblock = require('asyncblock')
-  , exec = require('child_process').exec
+  , childProcess = require('child_process')
+  , image_rec
   , io = require('socket.io')(server)
   , Twit = require('twit')
   , config = require('../config')
@@ -50,11 +51,20 @@ app.post('/image', function(req, res, next) {
     if (!result.data) {res.end()}
     require('fs').writeFile('../test_images/box_scene.'+result.type, result.data, "binary", function(err){
       if (err) throw err;
-      asyncblock(function (flow) {
-          exec('python ../image_rec.py', flow.add());
-          result = parseInt(flow.wait());
-          log("There were " + result + " matches.")
-      });
+      image_rec = childProcess.exec('python ../image_rec.py', function (error, stdout, stderr) {
+        if (error) {
+          console.log(error.stack);
+          console.log('Error code: '+error.code);
+         } else {
+           console.log('Child Process STDOUT: '+stdout);
+           console.log('Child Process STDERR: '+stderr);
+           result = parseInt(stdout);
+           log("There were " + result + " matches.")
+         }
+       });
+       image_rec.on('exit', function (code) {
+         console.log('Child process exited with exit code '+code);
+       });
     });
   res.end()
 })
@@ -75,7 +85,7 @@ io.on('connection', function (socket) {
   socket.emit('news', { hello: 'world' });
 
   stream.on('tweet', function (tweet, error) {
-    console.log(tweet.text)
+    // console.log(tweet.text)
     socket.emit("tweet", tweet)
     if (tweet.text.search("#up") != -1) {
       console.log("going up!")
