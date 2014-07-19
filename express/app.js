@@ -49,17 +49,20 @@ app.post('/image', function(req, res, next) {
     result.type = matches[1];
     result.data = new Buffer(matches[2], 'base64');
     if (!result.data) {res.end()}
-    require('fs').writeFile('../test_images/box_scene.'+result.type, result.data, "binary", function(err){
+    require('fs').writeFile('../test_images/input_scene.'+result.type, result.data, "binary", function(err){
       if (err) throw err;
-      image_rec = childProcess.exec('python ../image_rec.py', function (error, stdout, stderr) {
+      image_rec = childProcess.exec('python ../im_rec_2.py', function (error, stdout, stderr) {
+        if (!theSocket) return;
         if (error) {
           console.log(error.stack);
           console.log('Error code: '+error.code);
+          theSocket.emit('refreshImage', {success: false});
          } else {
            console.log('Child Process STDOUT: '+stdout);
            console.log('Child Process STDERR: '+stderr);
            result = parseInt(stdout);
            log("There were " + result + " matches.")
+           theSocket.emit('refreshImage', {success: true});
          }
        });
        image_rec.on('exit', function (code) {
@@ -69,24 +72,16 @@ app.post('/image', function(req, res, next) {
   res.end()
 })
 
-app.get('/test-drone', function(req, res) {
-  client.takeoff();
-
-  client.after(5000, function() {
-    this.land()
-  });
-
-  res.end()
-})
-
 var stream = T.stream('statuses/filter', { track: 'obama' })
-
+var theSocket;
 io.on('connection', function (socket) {
+  theSocket = socket
   socket.emit('news', { hello: 'world' });
 
   stream.on('tweet', function (tweet, error) {
     // console.log(tweet.text)
     socket.emit("tweet", tweet)
+
     if (tweet.text.search("#up") != -1) {
       console.log("going up!")
       client.takeoff();
