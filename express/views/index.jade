@@ -37,7 +37,8 @@ block append bodyscripts
     !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");
 
   table(width="100%")
-    tr
+    // if the height of the tr is too small then stream will jitter
+    tr(height="500px") 
       td(width="50%")
         h1 Video Stream goes here!
         div#dronestream(width=640, height=360)
@@ -47,5 +48,3 @@ block append bodyscripts
           ul
             li(ng-repeat='tweet in tweets')
               {{tweet.text}}
-      //  h1 Twitter goes here!
-      //  a.twitter-timeline(href="https://twitter.com/hashtag/cernercopter", data-widget-id="489955639867617280") #cernercopter Tweets

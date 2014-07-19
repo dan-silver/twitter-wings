@@ -79,11 +79,11 @@ app.get('/test-drone', function(req, res) {
   res.end()
 })
 
-var stream = T.stream('statuses/filter', { track: 'obama' })
+var stream = T.stream('statuses/filter', { track: 'cernercopter' })
 
 io.on('connection', function (socket) {
   socket.emit('news', { hello: 'world' });
-
+  console.log('here')
   stream.on('tweet', function (tweet, error) {
     // console.log(tweet.text)
     socket.emit("tweet", tweet)
@@ -103,5 +103,5 @@ io.on('connection', function (socket) {
   })
 });
 // should be require("dronestream").listen(server);
-require("../index").listen(server);
+// require("../index").listen(server);
 server.listen(3000);
