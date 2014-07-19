@@ -81,27 +81,43 @@ app.get('/test-drone', function(req, res) {
 
 var stream = T.stream('statuses/filter', { track: 'cernercopter' })
 
+command1 = "up"
+command2 = "down"
+
 io.on('connection', function (socket) {
   socket.emit('news', { hello: 'world' });
-  console.log('here')
+  console.log('got connection')
+  var votes = {};
+  votes[command1] = 0
+  votes[command2] = 0
   stream.on('tweet', function (tweet, error) {
     // console.log(tweet.text)
     socket.emit("tweet", tweet)
-    if (tweet.text.search("#up") != -1) {
-      console.log("going up!")
-      client.takeoff();
-    } else if (tweet.text.search("#down") != -1) {
-      console.log("going down!")
-      client.land();
-    } else if (tweet.text.search("#blink") != -1) {
-      console.log("blink!")
-      client.animateLeds('blinkRed', 5, 2)
-    } else if (tweet.text.search("#left") != -1) {
-      console.log("left")
-      client.counterClockwise(0.5)
+    if (tweet.text.search("#" + command1) != -1) {
+      console.log("up!");
+      votes[command1]++
+    } else if (tweet.text.search("#" + command2) != -1) {
+      console.log("down!");
+      votes[command2]++
     }
   })
+  var performCommand = setInterval(function() {
+      // Find the command with the most votes
+      max = votes[command1];
+      console.log("command 1 votes" + votes[command1]);
+      console.log("command 2 votes" + votes[command2]);
+      if (votes[command2] > max) {
+        max = command2;
+      }
+      console.log("best vote was " + max);
+      // TODO: perform the top voted command
+      // commands[command1].call() ?  
+      // Then set the votes dictionary to 0 for both commands
+      votes[command1] = 0
+      votes[command2] = 0
+  }, 5000);
 });
+
 // should be require("dronestream").listen(server);
 // require("../index").listen(server);
 server.listen(3000);
