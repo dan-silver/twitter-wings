@@ -19,8 +19,8 @@ var T = new Twit({
  , consumer_secret:      config.consumer_secret
  , access_token:         config.access_token
  , access_token_secret:  config.access_token_secret
-})
-
+});
+// Should this line go in the function below?
 app.use(bodyParser({limit: '900mb'}));
 
 app.configure(function () {
@@ -39,35 +39,37 @@ app.configure('development', function () {
 });
 
 app.get('/', routes.index);
+
 function log(s) {
-  console.log("node>" + s)
+  console.log("node>" + s);
 }
+
 app.post('/image', function(req, res, next) {
   log('image posted!')
-    var result = {}
-    var matches = req.body.picture.match(/^data:image\/([A-Za-z-+\/]+);base64,(.+)$/),response = {};
-    result.type = matches[1];
-    result.data = new Buffer(matches[2], 'base64');
-    if (!result.data) {res.end()}
-    require('fs').writeFile('../test_images/box_scene.'+result.type, result.data, "binary", function(err){
-      if (err) throw err;
-      image_rec = childProcess.exec('python ../image_rec.py', function (error, stdout, stderr) {
-        if (error) {
-          console.log(error.stack);
-          console.log('Error code: '+error.code);
-         } else {
-           console.log('Child Process STDOUT: '+stdout);
-           console.log('Child Process STDERR: '+stderr);
-           result = parseInt(stdout);
-           log("There were " + result + " matches.")
-         }
-       });
-       image_rec.on('exit', function (code) {
-         console.log('Child process exited with exit code '+code);
-       });
+  var result = {};
+  var matches = req.body.picture.match(/^data:image\/([A-Za-z-+\/]+);base64,(.+)$/),response = {};
+  result.type = matches[1];
+  result.data = new Buffer(matches[2], 'base64');
+  if (!result.data) {res.end()}
+  require('fs').writeFile('../test_images/box_scene.'+result.type, result.data, "binary", function(err) {
+    if (err) throw err;
+    image_rec = childProcess.exec('python ../image_rec.py', function (error, stdout, stderr) {
+      if (error) {
+        log(error.stack);
+        log('Error code: '+error.code);
+      } else {
+        log('Child Process STDOUT: '+stdout);
+        log('Child Process STDERR: '+stderr);
+        result = parseInt(stdout);
+        log("There were " + result + " matches.");
+      }
     });
+    image_rec.on('exit', function (code) {
+      log('Child process exited with exit code '+code);
+    });
+  });
   res.end()
-})
+});
 
 app.get('/test-drone', function(req, res) {
   client.takeoff();
@@ -77,46 +79,59 @@ app.get('/test-drone', function(req, res) {
   });
 
   res.end()
-})
+});
 
-var stream = T.stream('statuses/filter', { track: 'cernercopter' })
+var stream = T.stream('statuses/filter', { track: 'cernercopter' });
 
-command1 = "up"
-command2 = "down"
+command1 = "up";
+command2 = "down";
 
 io.on('connection', function (socket) {
   socket.emit('news', { hello: 'world' });
-  console.log('got connection')
+  log('got connection');
   var votes = {};
-  votes[command1] = 0
-  votes[command2] = 0
+  votes[command1] = 0;
+  votes[command2] = 0;
   stream.on('tweet', function (tweet, error) {
-    // console.log(tweet.text)
+    // log(tweet.text)
     socket.emit("tweet", tweet)
     if (tweet.text.search("#" + command1) != -1) {
-      console.log("up!");
-      votes[command1]++
+      log("voted up!");
+      votes[command1]++;
     } else if (tweet.text.search("#" + command2) != -1) {
-      console.log("down!");
-      votes[command2]++
+      log("voted down!");
+      votes[command2]++;
     }
   })
-  var performCommand = setInterval(function() {
-      // Find the command with the most votes
-      max = votes[command1];
-      console.log("command 1 votes" + votes[command1]);
-      console.log("command 2 votes" + votes[command2]);
-      if (votes[command2] > max) {
-        max = command2;
+  // get the majority voted command every 5 seconds
+  setInterval(function() {
+      log("command1 votes=" + votes[command1]);
+      log("command2 votes=" + votes[command2]);
+
+      majorityCommand = command1;
+      if (votes[command2] > votes[command1]) {
+        majorityCommand = command2;
       }
-      console.log("best vote was " + max);
-      // TODO: perform the top voted command
-      // commands[command1].call() ?  
-      // Then set the votes dictionary to 0 for both commands
-      votes[command1] = 0
-      votes[command2] = 0
+      log("best vote was " + majorityCommand);
+      // Actually tell the copter to perform the command 
+      performCommand(majorityCommand);
+      votes[command1] = 0;
+      votes[command2] = 0;
   }, 5000);
 });
+
+function performCommand(name) {
+  switch(name) {
+    case "up":
+        client.takeoff();
+        break;
+    case "down":
+        client.land();
+        break;
+    default:
+        throw new Error("performCommand called with an invalid command");
+  }
+}
 
 // should be require("dronestream").listen(server);
 // require("../index").listen(server);
