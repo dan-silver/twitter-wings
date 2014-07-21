@@ -17,21 +17,11 @@ block append head
 -# script(type='text/javascript', src='/dronestream/nodecopter-stream.js')
 -# concatenated version of client
 
-
 block append bodyscripts
   script.
     $(function() {
       var copterStream = new NodecopterStream(document.querySelector('#dronestream'));
     })
-  script.
-    $.ajaxSetup({ async: true });
-    setInterval(function() {
-      var pic = $('#dronestream canvas')[0].toDataURL("image/png");
-      console.log(pic)
-      $.post("http://localhost:3000/image",{status:true,picture:pic},function(result){});
-    }, 1000)
-  script.
-    !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");
 
   table(width="100%")
     // if the height of the tr is too small then stream will jitter
