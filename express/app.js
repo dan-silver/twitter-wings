@@ -85,6 +85,7 @@ var stream = T.stream('statuses/filter', { track: 'cernercopter' });
 
 command1 = "up";
 command2 = "down";
+command3 = "flip";
 
 io.on('connection', function (socket) {
   socket.emit('news', { hello: 'world' });
@@ -101,37 +102,54 @@ io.on('connection', function (socket) {
       log("voted up!");
       votes[command1]++;
       twt["command"] = command1;
+      socket.emit("twt", twt);
     } else if (tweet.text.search("#" + command2) != -1) {
       log("voted down!");
       votes[command2]++;
       twt["command"] = command2;
+      socket.emit("twt", twt);
+    } else if (tweet.text.search("#" + command3) != -1) {
+      log("voted flip!");
+      votes[command3]++
+      twt["command"] = command3;
+      socket.emit("twt", twt);
     }
-    socket.emit("twt", twt);
   });
   // get the majority voted command every 5 seconds
   setInterval(function() {
       log("command1 votes=" + votes[command1]);
       log("command2 votes=" + votes[command2]);
-
+      log("command3 votes=" + votes[command3]);
+      // TODO: set a default "stop" command here
       majorityCommand = command1;
       if (votes[command2] > votes[command1]) {
         majorityCommand = command2;
+      } 
+      if (votes[command3] > votes[command2]) {
+        majorityCommand = command3;
       }
       log("best vote was " + majorityCommand);
       // Actually tell the copter to perform the command 
       performCommand(majorityCommand);
       votes[command1] = 0;
       votes[command2] = 0;
+      votes[command3] = 0;
   }, 5000);
 });
 
 function performCommand(name) {
   switch(name) {
     case "up":
+        log("copter is taking off!");
         client.takeoff();
         break;
     case "down":
+        log("copter is landing!");
         client.land();
+        break;
+    case "flip":
+        log("copter is flipping!");
+        client.animate('flipLeft', 3000);
         break;
     default:
         throw new Error("performCommand called with an invalid command");
