@@ -1,3 +1,8 @@
+/**
+ *  This file contains the main logic for controlling the drone based
+ *  off of tweets.
+ */
+
 var express = require('express')
   , routes = require('./routes')
   , app = express()
@@ -39,7 +44,7 @@ app.configure(function () {
 
     app.use(express.static(path.join(__dirname, 'public')));
 });
-
+j
 app.configure('development', function () {
     app.use(express.errorHandler());
     app.locals.pretty = true;
