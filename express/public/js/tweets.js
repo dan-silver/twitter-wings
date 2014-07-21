@@ -14,14 +14,16 @@ phonecatApp.controller('AppCtrl', function ($scope) {
     }
     $scope.$apply();
   })
-  socket.on('tweet', function (data) {
+
+  socket.on('twt', function (data) {
   	console.log(data)
     // keep a queue of ten tweets. If queue is greater than 10, then delete
+    // keep a queue of ten twts. If queue is greater than 10, then delete
     // first element and enqueue the next element.
-    if ($scope.tweets.length > 10) {
-      $scope.tweets.shift();
+    if ($scope.twts.length > 10) {
+      $scope.twts.shift();
     }
-    $scope.tweets.push(data)
+    $scope.twts.push(data)
     console.log(data);
     $scope.$apply()
     //  write back to server

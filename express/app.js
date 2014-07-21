@@ -19,8 +19,8 @@ var T = new Twit({
  , consumer_secret:      config.consumer_secret
  , access_token:         config.access_token
  , access_token_secret:  config.access_token_secret
-})
-
+});
+// Should this line go in the function below?
 app.use(bodyParser({limit: '900mb'}));
 
 app.configure(function () {
@@ -39,38 +39,10 @@ app.configure('development', function () {
 });
 
 app.get('/', routes.index);
+
 function log(s) {
-  console.log("node>" + s)
+  console.log("node>" + s);
 }
-app.post('/image', function(req, res, next) {
-  log('image posted!')
-    var result = {}
-    var matches = req.body.picture.match(/^data:image\/([A-Za-z-+\/]+);base64,(.+)$/),response = {};
-    result.type = matches[1];
-    result.data = new Buffer(matches[2], 'base64');
-    if (!result.data) {res.end()}
-    require('fs').writeFile('../test_images/input_scene.'+result.type, result.data, "binary", function(err){
-      if (err) throw err;
-      image_rec = childProcess.exec('python ../im_rec_2.py', function (error, stdout, stderr) {
-        if (!theSocket) return;
-        if (error) {
-          console.log(error.stack);
-          console.log('Error code: '+error.code);
-          theSocket.emit('refreshImage', {success: false});
-         } else {
-           console.log('Child Process STDOUT: '+stdout);
-           console.log('Child Process STDERR: '+stderr);
-           result = parseInt(stdout);
-           log("There were " + result + " matches.")
-           theSocket.emit('refreshImage', {success: true});
-         }
-       });
-       image_rec.on('exit', function (code) {
-         console.log('Child process exited with exit code '+code);
-       });
-    });
-  res.end()
-})
 
 var stream = T.stream('statuses/filter', { track: 'obama' })
 var theSocket;
@@ -78,25 +50,56 @@ var theSocket;
 io.on('connection', function (socket) {
   theSocket = socket
   socket.emit('news', { hello: 'world' });
+  log('got connection');
+  var votes = {};
+  votes[command1] = 0;
+  votes[command2] = 0;
   stream.on('tweet', function (tweet, error) {
-    // console.log(tweet.text)
-    socket.emit("tweet", tweet)
-
-    if (tweet.text.search("#up") != -1) {
-      console.log("going up!")
-      client.takeoff();
-    } else if (tweet.text.search("#down") != -1) {
-      console.log("going down!")
-      client.land();
-    } else if (tweet.text.search("#blink") != -1) {
-      console.log("blink!")
-      client.animateLeds('blinkRed', 5, 2)
-    } else if (tweet.text.search("#left") != -1) {
-      console.log("left")
-      client.counterClockwise(0.5)
+    // log(tweet.text)
+    // socket.emit("tweet", tweet)
+    twt = {};
+    twt["screen_name"] = tweet.user["screen_name"];
+    if (tweet.text.search("#" + command1) != -1) {
+      log("voted up!");
+      votes[command1]++;
+      twt["command"] = command1;
+    } else if (tweet.text.search("#" + command2) != -1) {
+      log("voted down!");
+      votes[command2]++;
+      twt["command"] = command2;
     }
-  })
+    socket.emit("twt", twt);
+  });
+  // get the majority voted command every 5 seconds
+  setInterval(function() {
+      log("command1 votes=" + votes[command1]);
+      log("command2 votes=" + votes[command2]);
+
+      majorityCommand = command1;
+      if (votes[command2] > votes[command1]) {
+        majorityCommand = command2;
+      }
+      log("best vote was " + majorityCommand);
+      // Actually tell the copter to perform the command 
+      performCommand(majorityCommand);
+      votes[command1] = 0;
+      votes[command2] = 0;
+  }, 5000);
 });
+
+function performCommand(name) {
+  switch(name) {
+    case "up":
+        client.takeoff();
+        break;
+    case "down":
+        client.land();
+        break;
+    default:
+        throw new Error("performCommand called with an invalid command");
+  }
+}
+
 // should be require("dronestream").listen(server);
 require("../index").listen(server);
 server.listen(3000);

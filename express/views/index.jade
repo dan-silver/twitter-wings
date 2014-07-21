@@ -41,6 +41,7 @@ block append bodyscripts
         img#compare(src="comparison.png","ng-show"="imageSuccess")
         h1("ng-hide"="imageSuccess") Fox not found!
       td(width="50%")
-        #tweatList
-          div(ng-repeat='tweet in tweets')
-              {{tweet.text}}
+        div#tweatList
+          ul
+            li(ng-repeat='twt in twts')
+              @{{twt["screen_name"]}} : {{twt["command"]}}

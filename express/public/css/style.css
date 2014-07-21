@@ -6,3 +6,12 @@ body {
 a {
   color: #00B7FF;
 }
+
+li.ng-scope.ng-binding {
+  border-bottom: 1px solid #ccc;
+  font: 200 20px/1.5;
+}
+
+ul {
+  list-style-type: none;
+}
