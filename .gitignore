@@ -2,3 +2,6 @@ config.js
 node_modules/
 test_images/
 express/public/comparison.png
+*~
+*.swp
+*.swo
