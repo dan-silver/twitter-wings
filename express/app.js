@@ -13,6 +13,14 @@ var express = require('express')
   , io = require('socket.io')(server)
   , Twit = require('twit')
   , config = require('../config')
+  , program = require('commander');
+
+var safeHandles = ["sgjkbd"]//, "michael_hagar"]
+
+program
+  .version('0.0.1')
+  .option('-s, --safeMode', 'Safe mode')
+  .parse(process.argv);
 
 var T = new Twit({
    consumer_key:         config.consumer_key
@@ -20,6 +28,7 @@ var T = new Twit({
  , access_token:         config.access_token
  , access_token_secret:  config.access_token_secret
 });
+
 
 app.configure(function () {
     app.set('views', __dirname + '/views');
@@ -80,7 +89,6 @@ commands = [
             }
           ]
 
-
 var votes = [];
 
 function resetVotes() {
@@ -95,13 +103,22 @@ resetVotes()
 io.on('connection', function (socket) {
   log('got connection');
   stream.on('tweet', function (tweet, error) {
-    // log(tweet.text)
-    // socket.emit("tweet", tweet)
+    //make sure tweet is from a safe handle, otherwise don't continue!
+    if (program.safeMode) {
+      console.log("Running program in safe mode")
+      var isFound = safeHandles.indexOf(tweet.user["screen_name"])
+      console.log("comparing " + tweet.user["screen_name"] + " in " + safeHandles)
+      console.log("is found=" + isFound)
+      if (isFound == -1) {//not found
+        return;
+      }
+    }
+
     twt = {};
     twt["screen_name"] = tweet.user["screen_name"];
     for (var i = 0;i<commands.length;i++) {
       if (tweet.text.search("#" + commands[i].command) != -1) {
-        log("voted " + commands[i].command + "!");
+        // log("voted " + commands[i].command + "!");
         votes[i]++;
         twt["command"] = commands[i].command;
         socket.emit("twt", twt);
@@ -112,13 +129,13 @@ io.on('connection', function (socket) {
   setInterval(function() {
     majorityCommandIndex = 0;
     for (var i = 0;i<votes.length;i++) {
-      log("command"+i+" votes=" + votes[i]);
+      // log("command"+i+" votes=" + votes[i]);
       if (votes[i] > votes[majorityCommandIndex]) {
         majorityCommandIndex = i;
       } 
     }
     majorityCommand = commands[majorityCommandIndex]
-    log("best vote was " + majorityCommand.command);
+    // log("best vote was " + majorityCommand.command);
     // Actually tell the copter to perform the command 
     majorityCommand.callback();
     resetVotes()
