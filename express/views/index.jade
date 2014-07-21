@@ -29,6 +29,8 @@ block append bodyscripts
       td(width="50%")
         #dronestream(width=640, height=360)
       td(width="50%")
+        h1 Realtime Twitter Feed
+        p(ng-hide='twts.length') No tweets received
         div#tweatList
           ul
             li(ng-repeat='twt in twts')

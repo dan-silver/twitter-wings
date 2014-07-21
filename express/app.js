@@ -75,7 +75,7 @@ commands = [
               callback: land
             },
             {
-              command:"takeOff",
+              command:"takeoff",
               callback: takeOff
             }
           ]
@@ -142,18 +142,18 @@ function land() {
 }
 
 function flyUp() {
-  client.up(0.6);
+  client.up(0.4);
 
-  client.after(3000, function() {
+  client.after(1000, function() {
     log('copter stopped');
     this.stop();
   })
 }
 
 function flyDown() {
-  client.down(0.6);
+  client.down(1);
 
-  client.after(3000, function() {
+  client.after(1000, function() {
     log('copter stopped');
     this.stop();
   });
