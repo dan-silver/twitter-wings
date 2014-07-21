@@ -46,5 +46,5 @@ block append bodyscripts
       td(width="50%")
         div
           ul
-            li(ng-repeat='tweet in tweets')
-              {{tweet.text}}
+            li(ng-repeat='twt in twts')
+              @{{twt["screen_name"]}} : {{twt["command"]}}

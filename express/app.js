@@ -94,15 +94,20 @@ io.on('connection', function (socket) {
   votes[command2] = 0;
   stream.on('tweet', function (tweet, error) {
     // log(tweet.text)
-    socket.emit("tweet", tweet)
+    // socket.emit("tweet", tweet)
+    twt = {};
+    twt["screen_name"] = tweet.user["screen_name"];
     if (tweet.text.search("#" + command1) != -1) {
       log("voted up!");
       votes[command1]++;
+      twt["command"] = command1;
     } else if (tweet.text.search("#" + command2) != -1) {
       log("voted down!");
       votes[command2]++;
+      twt["command"] = command2;
     }
-  })
+    socket.emit("twt", twt);
+  });
   // get the majority voted command every 5 seconds
   setInterval(function() {
       log("command1 votes=" + votes[command1]);
