@@ -22,9 +22,6 @@ block append bodyscripts
   script.
     $(function() {
       var copterStream = new NodecopterStream(document.querySelector('#dronestream'));
-      setInterval(function() {
-        $("#compare").attr('src', "comparison.png?time=" + new Date());
-      },1000)
     })
   script.
     $.ajaxSetup({ async: true });
@@ -32,7 +29,7 @@ block append bodyscripts
       var pic = $('#dronestream canvas')[0].toDataURL("image/png");
       console.log(pic)
       $.post("http://localhost:3000/image",{status:true,picture:pic},function(result){});
-    }, 3500)
+    }, 1000)
   script.
     !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");
 
@@ -40,11 +37,11 @@ block append bodyscripts
     // if the height of the tr is too small then stream will jitter
     tr(height="500px") 
       td(width="50%")
-        h1 Video Stream goes here!
-        div#dronestream(width=640, height=360)
-        img#compare(src="comparison.png")
+        #dronestream(width=640, height=360)
+        img#compare(src="comparison.png","ng-show"="imageSuccess")
+        h1("ng-hide"="imageSuccess") Fox not found!
       td(width="50%")
-        div
+        div#tweatList
           ul
             li(ng-repeat='twt in twts')
               @{{twt["screen_name"]}} : {{twt["command"]}}

@@ -44,33 +44,6 @@ function log(s) {
   console.log("node>" + s);
 }
 
-app.post('/image', function(req, res, next) {
-  log('image posted!')
-  var result = {};
-  var matches = req.body.picture.match(/^data:image\/([A-Za-z-+\/]+);base64,(.+)$/),response = {};
-  result.type = matches[1];
-  result.data = new Buffer(matches[2], 'base64');
-  if (!result.data) {res.end()}
-  require('fs').writeFile('../test_images/box_scene.'+result.type, result.data, "binary", function(err) {
-    if (err) throw err;
-    image_rec = childProcess.exec('python ../image_rec.py', function (error, stdout, stderr) {
-      if (error) {
-        log(error.stack);
-        log('Error code: '+error.code);
-      } else {
-        log('Child Process STDOUT: '+stdout);
-        log('Child Process STDERR: '+stderr);
-        result = parseInt(stdout);
-        log("There were " + result + " matches.");
-      }
-    });
-    image_rec.on('exit', function (code) {
-      log('Child process exited with exit code '+code);
-    });
-  });
-  res.end()
-});
-
 app.get('/test-drone', function(req, res) {
   client.takeoff();
 
@@ -88,6 +61,7 @@ command2 = "down";
 command3 = "flip";
 
 io.on('connection', function (socket) {
+  theSocket = socket
   socket.emit('news', { hello: 'world' });
   log('got connection');
   var votes = {};
@@ -157,5 +131,5 @@ function performCommand(name) {
 }
 
 // should be require("dronestream").listen(server);
-// require("../index").listen(server);
+require("../index").listen(server);
 server.listen(3000);
