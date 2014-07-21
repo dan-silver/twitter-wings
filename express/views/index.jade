@@ -34,7 +34,8 @@ block append bodyscripts
     !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");
 
   table(width="100%")
-    tr
+    // if the height of the tr is too small then stream will jitter
+    tr(height="500px") 
       td(width="50%")
         #dronestream(width=640, height=360)
         img#compare(src="comparison.png","ng-show"="imageSuccess")

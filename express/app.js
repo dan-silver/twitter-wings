@@ -74,10 +74,10 @@ app.post('/image', function(req, res, next) {
 
 var stream = T.stream('statuses/filter', { track: 'obama' })
 var theSocket;
+
 io.on('connection', function (socket) {
   theSocket = socket
   socket.emit('news', { hello: 'world' });
-
   stream.on('tweet', function (tweet, error) {
     // console.log(tweet.text)
     socket.emit("tweet", tweet)
