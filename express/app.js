@@ -53,85 +53,92 @@ app.get('/test-drone', function(req, res) {
 });
 
 var stream = T.stream('statuses/filter', { track: 'cernercopter' });
+commands = [
+            {
+              command:"stop",
+              callback: stop
+            },
+            {
+              command:"up",
+              callback: flyUp
+            },
+            {
+              command:"down",
+              callback: flyDown
+            },
+            {
+              command:"flip",
+              callback: flip
+            },
+            {
+              command:"land",
+              callback: land
+            },
+            {
+              command:"takeOff",
+              callback: takeOff
+            }
+          ]
 
-command1 = "up";
-command2 = "down";
-command3 = "flip";
+
+var votes = [];
+
+function resetVotes() {
+  votes = []
+  for (var i = 0;i<commands.length;i++) {
+    votes.push(0);
+  }
+}
+
+resetVotes()
 
 io.on('connection', function (socket) {
   log('got connection');
-  var votes = {};
-  votes[command1] = 0;
-  votes[command2] = 0;
   stream.on('tweet', function (tweet, error) {
     // log(tweet.text)
     // socket.emit("tweet", tweet)
     twt = {};
     twt["screen_name"] = tweet.user["screen_name"];
-    if (tweet.text.search("#" + command1) != -1) {
-      log("voted up!");
-      votes[command1]++;
-      twt["command"] = command1;
-      socket.emit("twt", twt);
-    } else if (tweet.text.search("#" + command2) != -1) {
-      log("voted down!");
-      votes[command2]++;
-      twt["command"] = command2;
-      socket.emit("twt", twt);
-    } else if (tweet.text.search("#" + command3) != -1) {
-      log("voted flip!");
-      votes[command3]++
-      twt["command"] = command3;
-      socket.emit("twt", twt);
+    for (var i = 0;i<commands.length;i++) {
+      if (tweet.text.search("#" + commands[i].command) != -1) {
+        log("voted " + commands[i].command + "!");
+        votes[i]++;
+        twt["command"] = commands[i].command;
+        socket.emit("twt", twt);
+      }
     }
   });
   // get the majority voted command every 5 seconds
   setInterval(function() {
-      log("command1 votes=" + votes[command1]);
-      log("command2 votes=" + votes[command2]);
-      log("command3 votes=" + votes[command3]);
-      // TODO: set a default "stop" command here
-      majorityCommand = "default";
-      if (votes[command2] > votes[command1]) {
-        majorityCommand = command2;
+    majorityCommandIndex = 0;
+    for (var i = 0;i<votes.length;i++) {
+      log("command"+i+" votes=" + votes[i]);
+      if (votes[i] > votes[majorityCommandIndex]) {
+        majorityCommandIndex = i;
       } 
-      if (votes[command3] > votes[command2]) {
-        majorityCommand = command3;
-      }
-      log("best vote was " + majorityCommand);
-      // Actually tell the copter to perform the command 
-      performCommand(majorityCommand);
-      votes[command1] = 0;
-      votes[command2] = 0;
-      votes[command3] = 0;
+    }
+    majorityCommand = commands[majorityCommandIndex]
+    log("best vote was " + majorityCommand.command);
+    // Actually tell the copter to perform the command 
+    majorityCommand.callback();
+    resetVotes()
   }, 5000);
 });
 
-function performCommand(name) {
-  switch(name) {
-    case "up":
-        log("copter is taking off!");
-        client.takeoff();
-        break;
-    case "down":
-        log("copter is landing!");
-        client.land();
-        break;
-    case "flip":
-        log("copter is flipping!");
-        client.animate('flipLeft', 3000);
-        break;
-    case "flyup":
-        log("copter is flying up");
-        flyUp();
-        break;
-    case "flydown":
-        log("copter is flying down");
-        flyDown();
-        break;
-    default:
-        client.stop()
-  }
+function flip() {
+  client.animate('flipLeft', 3000);
+}
+
+function takeOff() {
+  client.takeoff()
+}
+
+function stop() {
+  client.stop()
+}
+
+function land() {
+  client.land()
 }
 
 function flyUp() {

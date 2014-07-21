@@ -1,7 +1,7 @@
 var phonecatApp = angular.module('twitter-wings', []);
 
 phonecatApp.controller('AppCtrl', function ($scope) {
-  $scope.twts = [{screen_name: "dan Silver"}];
+  $scope.twts = [];
 
   var socket = io.connect('http://localhost');
   socket.on('twt', function (data) {
