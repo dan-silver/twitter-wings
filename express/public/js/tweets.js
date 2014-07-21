@@ -2,19 +2,8 @@ var phonecatApp = angular.module('twitter-wings', []);
 
 phonecatApp.controller('AppCtrl', function ($scope) {
   $scope.tweets = [];
-  $scope.imageSuccess = false
 
   var socket = io.connect('http://localhost');
-  socket.on('refreshImage', function (data) {
-    if (data.success) {
-      $("#compare").attr('src', "comparison.png?time=" + new Date());
-      $scope.imageSuccess = true
-    } else {
-      $scope.imageSuccess = false
-    }
-    $scope.$apply();
-  })
-
   socket.on('twt', function (data) {
   	console.log(data)
     // keep a queue of ten tweets. If queue is greater than 10, then delete
