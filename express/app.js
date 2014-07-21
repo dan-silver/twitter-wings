@@ -91,7 +91,7 @@ io.on('connection', function (socket) {
       log("command2 votes=" + votes[command2]);
       log("command3 votes=" + votes[command3]);
       // TODO: set a default "stop" command here
-      majorityCommand = command1;
+      majorityCommand = "default";
       if (votes[command2] > votes[command1]) {
         majorityCommand = command2;
       } 
@@ -121,9 +121,35 @@ function performCommand(name) {
         log("copter is flipping!");
         client.animate('flipLeft', 3000);
         break;
+    case "flyup":
+        log("copter is flying up");
+        flyUp();
+        break;
+    case "flydown":
+        log("copter is flying down");
+        flyDown();
+        break;
     default:
-        throw new Error("performCommand called with an invalid command");
+        client.stop()
   }
+}
+
+function flyUp() {
+  client.up(0.6);
+
+  client.after(3000, function() {
+    log('copter stopped');
+    this.stop();
+  })
+}
+
+function flyDown() {
+  client.down(0.6);
+
+  client.after(3000, function() {
+    log('copter stopped');
+    this.stop();
+  });
 }
 
 // should be require("dronestream").listen(server);
