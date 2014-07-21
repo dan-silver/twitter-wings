@@ -20,8 +20,6 @@ var T = new Twit({
  , access_token:         config.access_token
  , access_token_secret:  config.access_token_secret
 });
-// Should this line go in the function below?
-app.use(bodyParser({limit: '900mb'}));
 
 app.configure(function () {
     app.set('views', __dirname + '/views');
@@ -61,8 +59,6 @@ command2 = "down";
 command3 = "flip";
 
 io.on('connection', function (socket) {
-  theSocket = socket
-  socket.emit('news', { hello: 'world' });
   log('got connection');
   var votes = {};
   votes[command1] = 0;

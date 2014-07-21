@@ -5,7 +5,7 @@ phonecatApp.controller('AppCtrl', function ($scope) {
 
   var socket = io.connect('http://localhost');
   socket.on('twt', function (data) {
-  	console.log(data)
+  	console.log("data",data)
     // keep a queue of ten tweets. If queue is greater than 10, then delete
     // keep a queue of ten twts. If queue is greater than 10, then delete
     // first element and enqueue the next element.
@@ -13,7 +13,7 @@ phonecatApp.controller('AppCtrl', function ($scope) {
       $scope.twts.shift();
     }
     $scope.twts.push(data)
-    console.log(data);
+    console.log("$scope.twts", $scope.twts);
     $scope.$apply()
   });
 });
